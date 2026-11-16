@@ -1,0 +1,3 @@
+*.run binary
+*.so binary
+*.o binary

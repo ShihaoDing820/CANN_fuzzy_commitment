@@ -1,0 +1,154 @@
+{
+  "binList": [
+    {
+      "implMode": "high_performance",
+      "int64Mode": false,
+      "simplifiedKeyMode": 0,
+      "simplifiedKey": [
+        "FuzzyCommitmentLdpcRecoverCustom/d=0,p=1/7,2/7,2/3,2/3,2/3,2/3,2/7,2/3,2/3,2/3,2",
+        "FuzzyCommitmentLdpcRecoverCustom/d=0,p=0/7,2/7,2/3,2/3,2/3,2/3,2/7,2/3,2/3,2/3,2",
+        "FuzzyCommitmentLdpcRecoverCustom/d=1,p=1/7,2/7,2/3,2/3,2/3,2/3,2/7,2/3,2/3,2/3,2",
+        "FuzzyCommitmentLdpcRecoverCustom/d=1,p=0/7,2/7,2/3,2/3,2/3,2/3,2/7,2/3,2/3,2/3,2"
+      ],
+      "staticKey": "4d440c1b77765d6559bf621aa9e36b7945caf84891a7b7dc5d7d942139bdb750,3018e884189891e446aafc0ffc70bd40924c01b4c9da073052036b3aa3a0aa18",
+      "inputs": [
+        {
+          "name": "probe",
+          "index": 0,
+          "dtype": "uint16",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        },
+        {
+          "name": "helper",
+          "index": 1,
+          "dtype": "uint16",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        },
+        {
+          "name": "check_offsets",
+          "index": 2,
+          "dtype": "int32",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        },
+        {
+          "name": "check_variables",
+          "index": 3,
+          "dtype": "int32",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        },
+        {
+          "name": "variable_offsets",
+          "index": 4,
+          "dtype": "int32",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        },
+        {
+          "name": "variable_edges",
+          "index": 5,
+          "dtype": "int32",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "decoded",
+          "index": 0,
+          "dtype": "uint16",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        },
+        {
+          "name": "decode_ok",
+          "index": 1,
+          "dtype": "int32",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        },
+        {
+          "name": "syndrome_weight",
+          "index": 2,
+          "dtype": "int32",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        },
+        {
+          "name": "iterations",
+          "index": 3,
+          "dtype": "int32",
+          "format": "ND",
+          "paramType": "required",
+          "shape": [
+            -2
+          ],
+          "format_match_mode": "FormatAgnostic"
+        }
+      ],
+      "attrs": [
+        {
+          "name": "max_iterations",
+          "dtype": "int",
+          "value": 0
+        },
+        {
+          "name": "channel_llr",
+          "dtype": "float",
+          "value": 0.0
+        },
+        {
+          "name": "normalization",
+          "dtype": "float",
+          "value": 0.0
+        }
+      ],
+      "opMode": "dynamic",
+      "optionalInputMode": "gen_placeholder",
+      "deterministic": "ignore",
+      "optionalOutputMode": "gen_placeholder",
+      "binInfo": {
+        "jsonFilePath": "ascend310p/fuzzy_commitment_ldpc_recover_custom/FuzzyCommitmentLdpcRecoverCustom_90d731d302f81f566e4a64c4e4a44d43.json"
+      }
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+ "binFileName": "FuzzyCommitmentAdaMTransCustom_56ddef1131dcfe133f7d5e0c96525e76",
+ "binFileSuffix": ".o",
+ "blockDim": -1,
+ "coreType": "AiCore",
+ "globalworkspace_spec_workspace": {
+  "size": 32,
+  "type": 0
+ },
+ "kernelName": "FuzzyCommitmentAdaMTransCustom_56ddef1131dcfe133f7d5e0c96525e76",
+ "magic": "RT_DEV_BINARY_MAGIC_ELF",
+ "memoryStamping": [],
+ "opParaSize": 36,
+ "parameters": [
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "sha256": "cf5c92130da32881673273b6846da56ce476b1f727f9aeb216f3e5848854bbc4",
+ "workspace": {
+  "num": 1,
+  "size": [
+   -1
+  ],
+  "type": [
+   0
+  ]
+ },
+ "kernelList": [
+  {
+   "kernelName": "FuzzyCommitmentAdaMTransCustom_56ddef1131dcfe133f7d5e0c96525e76_0"
+  }
+ ],
+ "optionalInputMode": "gen_placeholder",
+ "optionalOutputMode": "gen_placeholder",
+ "supportSuperKernel": 1,
+ "compileInfo": {},
+ "supportInfo": {
+  "implMode": "high_performance",
+  "int64Mode": false,
+  "simplifiedKeyMode": 0,
+  "simplifiedKey": [
+   "FuzzyCommitmentAdaMTransCustom/d=0,p=1/0,2/0,2/7,2/7,2",
+   "FuzzyCommitmentAdaMTransCustom/d=0,p=0/0,2/0,2/7,2/7,2",
+   "FuzzyCommitmentAdaMTransCustom/d=1,p=1/0,2/0,2/7,2/7,2",
+   "FuzzyCommitmentAdaMTransCustom/d=1,p=0/0,2/0,2/7,2/7,2"
+  ],
+  "optionalInputMode": "gen_placeholder",
+  "optionalOutputMode": "gen_placeholder",
+  "staticKey": "c7bab563523d4ff409e1958bf52da621d60f591ed1092c6dd9da362a10110298,9e4cf6ef466f5d755440e929dd4fe48ebd5cf2b7ee4c3064020b8b97e8184c3a",
+  "inputs": [
+   {
+    "name": "embeddings",
+    "index": 0,
+    "dtype": "float32",
+    "format": "ND",
+    "paramType": "required",
+    "shape": [
+     -2
+    ],
+    "format_match_mode": "FormatAgnostic"
+   },
+   {
+    "name": "thresholds",
+    "index": 1,
+    "dtype": "float32",
+    "format": "ND",
+    "paramType": "required",
+    "shape": [
+     -2
+    ],
+    "format_match_mode": "FormatAgnostic"
+   },
+   {
+    "name": "mask",
+    "index": 2,
+    "dtype": "uint16",
+    "format": "ND",
+    "paramType": "required",
+    "shape": [
+     -2
+    ],
+    "format_match_mode": "FormatAgnostic"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "binary_templates",
+    "index": 0,
+    "dtype": "uint16",
+    "format": "ND",
+    "paramType": "required",
+    "shape": [
+     -2
+    ],
+    "format_match_mode": "FormatAgnostic"
+   }
+  ],
+  "attrs": [
+   {
+    "name": "embedding_dim",
+    "dtype": "int",
+    "value": 0
+   },
+   {
+    "name": "bits_per_feature",
+    "dtype": "int",
+    "value": 0
+   }
+  ],
+  "opMode": "dynamic",
+  "deterministic": "ignore"
+ },
+ "filePath": "ascend310p/fuzzy_commitment_ada_m_trans_custom/FuzzyCommitmentAdaMTransCustom_56ddef1131dcfe133f7d5e0c96525e76.json"
+}

@@ -1,0 +1,16 @@
+build/
+build_out/
+*.log
+*.tmp
+__pycache__/
+*.pyc
+.pytest_cache/
+prototype/build/
+custom_opp/build_out/
+custom_opp/build/
+cceprint/
+npuchk/
+stub_reg.log
+*/cceprint/
+*/npuchk/
+*/stub_reg.log

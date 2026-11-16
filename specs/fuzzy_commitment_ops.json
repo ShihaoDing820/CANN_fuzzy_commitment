@@ -1,0 +1,134 @@
+[
+  {
+    "op": "FuzzyCommitmentAdaMTransCustom",
+    "input_desc": [
+      {
+        "name": "embeddings",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["float32"]
+      },
+      {
+        "name": "thresholds",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["float32"]
+      },
+      {
+        "name": "mask",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["uint16"]
+      }
+    ],
+    "output_desc": [
+      {
+        "name": "binary_templates",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["uint16"]
+      }
+    ],
+    "attr": [
+      {
+        "name": "embedding_dim",
+        "param_type": "optional",
+        "type": "int",
+        "default_value": 512
+      },
+      {
+        "name": "bits_per_feature",
+        "param_type": "optional",
+        "type": "int",
+        "default_value": 3
+      }
+    ]
+  },
+  {
+    "op": "FuzzyCommitmentLdpcRecoverCustom",
+    "input_desc": [
+      {
+        "name": "probe",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["uint16"]
+      },
+      {
+        "name": "helper",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["uint16"]
+      },
+      {
+        "name": "check_offsets",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["int32"]
+      },
+      {
+        "name": "check_variables",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["int32"]
+      },
+      {
+        "name": "variable_offsets",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["int32"]
+      },
+      {
+        "name": "variable_edges",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["int32"]
+      }
+    ],
+    "output_desc": [
+      {
+        "name": "decoded",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["uint16"]
+      },
+      {
+        "name": "decode_ok",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["int32"]
+      },
+      {
+        "name": "syndrome_weight",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["int32"]
+      },
+      {
+        "name": "iterations",
+        "param_type": "required",
+        "format": ["ND"],
+        "type": ["int32"]
+      }
+    ],
+    "attr": [
+      {
+        "name": "max_iterations",
+        "param_type": "optional",
+        "type": "int",
+        "default_value": 50
+      },
+      {
+        "name": "channel_llr",
+        "param_type": "optional",
+        "type": "float",
+        "default_value": 4.0
+      },
+      {
+        "name": "normalization",
+        "param_type": "optional",
+        "type": "float",
+        "default_value": 0.75
+      }
+    ]
+  }
+]
