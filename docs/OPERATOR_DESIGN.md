@@ -50,27 +50,26 @@ $W[b,j] = q(X[b])[j] \land \text{mask}[j]$，且 $W \in \lbrace 0,1 \rbrace^{B \
 
 每个 1536-bit 模板拆为三个 512-bit 块，各补 8 个零：
 
-```text
-w_i ∈ {0,1}^520, i=0,1,2
-```
+$w_i \in \{0,1\}^{520},\quad i = 0,1,2$
 
 注册：
 
-```text
-c_i ← 随机合法LDPC码字，满足 Hc_i^T=0
-P_i = w_i XOR c_i
-tag = SHA256(c_0||c_1||c_2)
-```
+$c_i \leftarrow \text{随机合法 LDPC 码字},\ \text{s.t. } Hc_i^{T} = 0$
+
+$P_i = w_i \oplus c_i$
+
+$\text{tag} = \mathrm{SHA256}(c_0 \Vert c_1 \Vert c_2)$
 
 验证：
 
-```text
-y_i = w'_i XOR P_i
-    = c_i XOR (w'_i XOR w_i)
-c_hat_i = LDPCDecode(y_i)
-accept ⇔ 所有码块解码有效且
-         SHA256(c_hat_0||c_hat_1||c_hat_2)=tag
-```
+$$
+\begin{aligned}
+y_i &= w'_i \oplus P_i \\
+    &= c_i \oplus (w'_i \oplus w_i) \\
+\hat{c}_i &= \mathrm{LDPCDecode}(y_i) \\
+\text{accept} &\Leftrightarrow \text{所有码块解码有效且 } \mathrm{SHA256}(\hat{c}_0 \Vert \hat{c}_1 \Vert \hat{c}_2) = \text{tag}
+\end{aligned}
+$$
 
 ### 2.3 LDPC 参数
 
@@ -87,8 +86,7 @@ accept ⇔ 所有码块解码有效且
 | 初始 LLR | 默认 ±4.0 |
 | Min-Sum 归一化 | 默认 0.75 |
 
-本实现复用 WiFaKey 的 BG2/Z=10 结构，但使用固定参数 Normalized Min-Sum，
-不声称复现完整 Neural-MS 训练过程。
+本实现复用 WiFaKey 的 BG2/Z=10 结构，使用固定参数 Normalized Min-Sum。
 
 ## 3. 算子原型 JSON
 
