@@ -8,10 +8,10 @@ Fuzzy Commitment 是注册与验证协议，不是一个单独的逐元素函数
 
 $$
 \begin{aligned}
-\mathbf{w} &= \operatorname{Binarize}(\operatorname{ArcFace}(\text{注册图像})), \\
-\mathbf{c} &\overset{\$}{\leftarrow} \mathcal{C}, \\
+\mathbf{w} &= \mathrm{Binarize}(\mathrm{ArcFace}(\text{注册图像})), \\
+\mathbf{c} &\overset{\mathrm{rand}}{\leftarrow} \mathcal{C}, \\
 \mathbf{P} &= \mathbf{w}\oplus\mathbf{c}, \\
-\mathrm{tag} &= \operatorname{SHA\!-\!256}(\mathbf{c}).
+\mathrm{tag} &= \mathrm{SHA\text{-}256}(\mathbf{c}).
 \end{aligned}
 $$
 
@@ -19,15 +19,16 @@ $$
 
 $$
 \begin{aligned}
-\mathbf{w}' &= \operatorname{Binarize}(\operatorname{ArcFace}(\text{验证图像})), \\
+\mathbf{w}' &= \mathrm{Binarize}(\mathrm{ArcFace}(\text{验证图像})), \\
 \mathbf{y} &= \mathbf{w}'\oplus\mathbf{P}, \\
-\hat{\mathbf{c}} &= \operatorname{LDPCDecode}(\mathbf{y}), \\
+\hat{\mathbf{c}} &= \mathrm{LDPCDecode}(\mathbf{y}), \\
 \mathrm{accept} &\Longleftrightarrow
-\operatorname{SHA\!-\!256}(\hat{\mathbf{c}})=\mathrm{tag}.
+\mathrm{SHA\text{-}256}(\hat{\mathbf{c}})=\mathrm{tag}.
 \end{aligned}
 $$
 
-其中 $\mathcal{C}$ 是合法 LDPC 码字集合， $\overset{\$}{\leftarrow}$ 表示随机选择。
+其中 $\mathcal{C}$ 是合法 LDPC 码字集合，
+$\overset{\mathrm{rand}}{\leftarrow}$ 表示随机选择。
 
 本工程只把适合张量计算的二值化和 LDPC 解码放在 AI Core。数据读取、随机数、
 helper data、哈希和协议状态保留在 Host。
@@ -38,13 +39,12 @@ ArcFace 输出 512 个 float，LDPC 处理固定长度 bit 向量。必须定义
 可复现的转换：
 
 $$
-q(x)=
-\begin{cases}
-(0,0,0), & x<t_0, \\
-(0,0,1), & t_0\le x<t_1, \\
-(0,1,1), & t_1\le x<t_2, \\
-(1,1,1), & x\ge t_2.
-\end{cases}
+\begin{aligned}
+q(x) &= (0,0,0), \quad x<t_0, \\
+q(x) &= (0,0,1), \quad t_0\le x<t_1, \\
+q(x) &= (0,1,1), \quad t_1\le x<t_2, \\
+q(x) &= (1,1,1), \quad x\ge t_2.
+\end{aligned}
 $$
 
 这是温度计式编码。相邻区间只变化一位，例如 $(0,0,1)\rightarrow(0,1,1)$，比普通二进制编码
@@ -53,9 +53,9 @@ $$
 512 维各产生 3 bit，所以模板长度为 $512\times3=1536$ bit。mask 再去掉部分位置：
 
 $$
-\mathbf{w}=\operatorname{LSSC}(\mathbf{x})\land\mathbf{m},
+\mathbf{w}=\mathrm{LSSC}(\mathbf{x})\land\mathbf{m},
 \qquad
-\mathbf{w}\in\{0,1\}^{1536}.
+\mathbf{w}\in\lbrace0,1\rbrace^{1536}.
 $$
 
 ### 常见做法
@@ -94,7 +94,7 @@ $$
 \end{aligned}
 $$
 
-两次采集越接近，误差的 Hamming weight $\operatorname{wt}(\mathbf{e})$ 越低。
+两次采集越接近，误差的 Hamming weight $\mathrm{wt}(\mathbf{e})$ 越低。
 LDPC 的任务就是从 $\mathbf{c}\oplus\mathbf{e}$ 恢复 $\mathbf{c}$。
 
 helper $\mathbf{P}$ 通常可以公开，但“可以公开”不代表“没有信息泄漏”。纠错码参数、
@@ -116,16 +116,16 @@ $$
 
 $$
 \begin{aligned}
-N &= 520 &&\text{（变量节点数，即码长）}, \\
-M &= 420 &&\text{（校验节点数）}, \\
-E &= 1970 &&\text{（Tanner 图边数）}, \\
-\operatorname{rank}(\mathbf{H}) &= 420, \\
-K &= N-\operatorname{rank}(\mathbf{H})=520-420=100.
+N &= 520, \quad \text{变量节点数，即码长}, \\
+M &= 420, \quad \text{校验节点数}, \\
+E &= 1970, \quad \text{Tanner 图边数}, \\
+\mathrm{rank}(\mathbf{H}) &= 420, \\
+K &= N-\mathrm{rank}(\mathbf{H})=520-420=100.
 \end{aligned}
 $$
 
 BG2 基图是 $42\times52$，提升因子 $Z=10$ 后得到
-$\mathbf{H}\in\{0,1\}^{420\times520}$ 的稀疏校验矩阵。
+$\mathbf{H}\in\lbrace0,1\rbrace^{420\times520}$ 的稀疏校验矩阵。
 
 代码保存两个方向的 CSR 风格索引：
 
@@ -142,11 +142,8 @@ variableOffsets/variableEdges：从VN查消息边
 收到 bit 后先建立置信度：
 
 $$
-L_v=
-\begin{cases}
-+4.0, & y_v=0, \\
--4.0, & y_v=1.
-\end{cases}
+L_v=(1-2y_v)\times4.0,
+\qquad y_v\in\lbrace0,1\rbrace.
 $$
 
 每轮执行：

@@ -50,11 +50,13 @@ $$
 最后应用 mask。将每行量化结果展开为 1536 维二值向量后，有：
 
 $$
-\begin{aligned}
-W_{b,3d+r} &= q_r(X_{b,d}) \land m_{3d+r},
-&& 0\le b<B,\quad 0\le d<512,\quad r\in\{0,1,2\}, \\
-\mathbf{W} &\in \{0,1\}^{B \times 1536}.
-\end{aligned}
+W_{b,3d+r}=q_r(X_{b,d})\land m_{3d+r},
+\qquad
+0\le b<B,\quad 0\le d<512,\quad r\in\lbrace0,1,2\rbrace.
+$$
+
+$$
+\mathbf{W}\in\lbrace0,1\rbrace^{B\times1536}.
 $$
 
 其中 $m_j$ 是 mask 的第 $j$ 位。
@@ -64,25 +66,25 @@ $$
 每个 1536-bit 模板拆为三个 512-bit 块，各补 8 个零：
 
 $$
-\mathbf{w}_i \in \{0,1\}^{520},
-\qquad i \in \{0,1,2\}.
+\mathbf{w}_i \in \lbrace0,1\rbrace^{520},
+\qquad i \in \lbrace0,1,2\rbrace.
 $$
 
 注册：
 
 $$
 \begin{aligned}
-\mathcal{C} &= \left\{\mathbf{c}\in\mathbb{F}_2^{520}
-\;\middle|\;\mathbf{H}\mathbf{c}=\mathbf{0}\right\}, \\
-\mathbf{c}_i &\overset{\$}{\leftarrow} \mathcal{C}, \\
+\mathcal{C} &= \left\lbrace\mathbf{c}\in\mathbb{F}_2^{520}
+\;\middle|\;\mathbf{H}\mathbf{c}=\mathbf{0}\right\rbrace, \\
+\mathbf{c}_i &\overset{\mathrm{rand}}{\leftarrow} \mathcal{C}, \\
 \mathbf{P}_i &= \mathbf{w}_i \oplus \mathbf{c}_i, \\
-\mathrm{tag} &= \operatorname{SHA\!-\!256}
-\bigl(\mathbf{c}_0 \mathbin\Vert \mathbf{c}_1 \mathbin\Vert \mathbf{c}_2\bigr),
+\mathrm{tag} &= \mathrm{SHA\text{-}256}
+\bigl(\mathbf{c}_0 \Vert \mathbf{c}_1 \Vert \mathbf{c}_2\bigr).
 \end{aligned}
 $$
 
 其中 $\mathcal{C}$ 表示由校验矩阵 $\mathbf{H}$ 定义的 LDPC 码空间，
-$\overset{\$}{\leftarrow}$ 表示从中随机选择合法码字。
+$\overset{\mathrm{rand}}{\leftarrow}$ 表示从中随机选择合法码字。
 
 验证：
 
@@ -90,18 +92,20 @@ $$
 \begin{aligned}
 \mathbf{y}_i &= \mathbf{w}'_i \oplus \mathbf{P}_i \\
              &= \mathbf{c}_i \oplus (\mathbf{w}'_i \oplus \mathbf{w}_i), \\
-\hat{\mathbf{c}}_i &= \operatorname{LDPCDecode}(\mathbf{y}_i), \\
+\hat{\mathbf{c}}_i &= \mathrm{LDPCDecode}(\mathbf{y}_i), \\
 \mathrm{accept}
 &\Longleftrightarrow
-\left(\bigwedge_{i=0}^{2}\operatorname{decode\_ok}_i=1\right)
+\left(\bigwedge_{i=0}^{2}d_i^{\mathrm{ok}}=1\right)
 \land
-\operatorname{SHA\!-\!256}
-\bigl(\hat{\mathbf{c}}_0 \mathbin\Vert
-      \hat{\mathbf{c}}_1 \mathbin\Vert
+\mathrm{SHA\text{-}256}
+\bigl(\hat{\mathbf{c}}_0 \Vert
+      \hat{\mathbf{c}}_1 \Vert
       \hat{\mathbf{c}}_2\bigr)
 =\mathrm{tag}.
 \end{aligned}
 $$
+
+其中 $d_i^{\mathrm{ok}}$ 对应第 $i$ 个码块的 `decode_ok` 输出。
 
 ### 2.3 LDPC 参数
 
@@ -180,10 +184,10 @@ Host 检查：
 
 $$
 \begin{aligned}
-\operatorname{rank}(\texttt{embeddings}) &= 2, \\
-\operatorname{shape}(\texttt{embeddings}) &= [B,512], \\
-\operatorname{shape}(\texttt{thresholds}) &= [3], \\
-\operatorname{shape}(\texttt{mask}) &= [1536], \\
+\mathrm{rank}(\mathtt{embeddings}) &= 2, \\
+\mathrm{shape}(\mathtt{embeddings}) &= [B,512], \\
+\mathrm{shape}(\mathtt{thresholds}) &= [3], \\
+\mathrm{shape}(\mathtt{mask}) &= [1536], \\
 B &> 0 \quad \text{（运行时）}.
 \end{aligned}
 $$
@@ -193,8 +197,10 @@ $B$ 可以在图构建阶段未知，但运行时必须大于 $0$。
 输出：
 
 $$
-\operatorname{shape}(\texttt{binary\_templates})=[B,1536].
+\mathrm{shape}(\mathtt{binaryTemplates})=[B,1536].
 $$
+
+公式中的 $\mathtt{binaryTemplates}$ 对应接口字段 `binary_templates`。
 
 输出 dtype 固定为 `uint16`，不会错误继承 float32 输入 dtype。
 
@@ -351,10 +357,8 @@ LDPC 每轮存在全图 CN/VN 消息依赖。因此首版不把同一个码块�
 $$
 y_v=\mathrm{probe}_v\oplus\mathrm{helper}_v,
 \qquad
-L_v=\begin{cases}
-+L_{\mathrm{ch}}, & y_v=0,\\
--L_{\mathrm{ch}}, & y_v=1.
-\end{cases}
+L_v=(1-2y_v)L_{\mathrm{ch}},
+\qquad y_v\in\lbrace0,1\rbrace.
 $$
 
 随后初始化 $q$、 $r$ 消息，并循环至多 $I_{\max}$ 次：
@@ -367,7 +371,7 @@ $$
 最后输出 `decoded`、`decode_ok`、`syndrome_weight` 和 `iterations`。
 
 额外元数据用于测试、监控和失败分析。生产协议层应要求所有三个码块
-$\operatorname{decode\_ok}=1$ 后再执行最终 tag 接受逻辑。
+的 `decode_ok` 均为 $1$ 后再执行最终 tag 接受逻辑。
 
 ## 6. Host 与 Kernel 的职责
 
