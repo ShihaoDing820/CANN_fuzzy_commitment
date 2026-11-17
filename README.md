@@ -134,7 +134,7 @@ iterations         int32  [S]
 - [算子设计与实现](docs/OPERATOR_DESIGN.md)
 - [算法解释、常见做法与 CANN 差异](docs/ALGORITHM_EXPLANATION.md)
 - [构建、部署和调用](docs/BUILD_DEPLOY_USE.md)
-- [功能验证报告](docs/VALIDATION_REPORT.md)、
+- [功能验证报告](docs/VALIDATION_REPORT.md)
 
 ## 安全与评估边界
 
