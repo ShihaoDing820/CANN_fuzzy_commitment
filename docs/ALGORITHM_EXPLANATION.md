@@ -40,9 +40,9 @@ ArcFace 输出 512 个 float，LDPC 处理固定长度 bit 向量。必须定义
 
 $$
 \begin{aligned}
-q(x) &= (0,0,0), \quad x<t_0, \\
-q(x) &= (0,0,1), \quad t_0\le x<t_1, \\
-q(x) &= (0,1,1), \quad t_1\le x<t_2, \\
+q(x) &= (0,0,0), \quad x\lt t_0, \\
+q(x) &= (0,0,1), \quad t_0\le x\lt t_1, \\
+q(x) &= (0,1,1), \quad t_1\le x\lt t_2, \\
 q(x) &= (1,1,1), \quad x\ge t_2.
 \end{aligned}
 $$

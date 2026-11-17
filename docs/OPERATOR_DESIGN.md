@@ -24,7 +24,7 @@
 输入：
 
 $$
-\mathbf{X} \in \mathbb{R}^{B \times 512}, \qquad t_0 < t_1 < t_2
+\mathbf{X} \in \mathbb{R}^{B \times 512}, \qquad t_0 \lt t_1 \lt t_2
 $$
 
 对每个特征值：
@@ -52,7 +52,7 @@ $$
 $$
 W_{b,3d+r}=q_r(X_{b,d})\land m_{3d+r},
 \qquad
-0\le b<B,\quad 0\le d<512,\quad r\in\lbrace0,1,2\rbrace.
+0\le b\lt B,\quad 0\le d\lt512,\quad r\in\lbrace0,1,2\rbrace.
 $$
 
 $$
@@ -188,7 +188,7 @@ $$
 \mathrm{shape}(\mathtt{embeddings}) &= [B,512], \\
 \mathrm{shape}(\mathtt{thresholds}) &= [3], \\
 \mathrm{shape}(\mathtt{mask}) &= [1536], \\
-B &> 0 \quad \text{（运行时）}.
+B &\gt 0 \quad \text{（运行时）}.
 \end{aligned}
 $$
 
@@ -290,8 +290,8 @@ Host 限制：
 
 $$
 1 \le I_{\max} \le 1000,
-\qquad L_{\mathrm{ch}}>0,
-\qquad 0<\alpha\le1,
+\qquad L_{\mathrm{ch}}\gt0,
+\qquad 0\lt\alpha\le1,
 $$
 
 其中 $I_{\max}$、 $L_{\mathrm{ch}}$ 和 $\alpha$ 分别对应
