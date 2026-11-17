@@ -62,13 +62,13 @@ CANN_fuzzy_commitment/
 LFW 特征默认从以下位置读取：
 
 ```text
-/home/dsh/下载/embeddings_arcface_r100_lfw.csv
+/data/embeddings_arcface_r100_lfw.csv
 ```
 
 标签默认从以下位置读取：
 
 ```text
-/home/dsh/cann-dev/biometric-data/lfw_issame.csv
+/data/lfw_issame.csv
 ```
 
 数据集体积较大，可从[WiFaKey代码仓库](https://github.com/xingbod/WiFaKey)自行下载。可将自定义路径传给原型脚本：
