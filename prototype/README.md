@@ -11,13 +11,13 @@
    - 使用四区间 LSSC 生成 1536 bit。
    - 应用固定、可复现的 AdaMTrans 随机掩码。
 2. `fuzzy_commitment_lfw_ldpc_recover`
-   - 使用 WiFaKey 同款 5G-NR Base Graph 2、`Z=10` 结构。
-   - 每个 512 bit 块补 8 个零，形成 `N=520`、`K=100` 的 LDPC 块。
+   - 使用 WiFaKey 同款 5G-NR Base Graph 2、 $Z=10$ 结构。
+   - 每个 512 bit 块补 8 个零，形成 $N=520$、 $K=100$ 的 LDPC 块。
    - 通过归一化 Min-Sum 解码恢复 Commitment 码字。
 
 Host 端负责 CSV 解析、helper data 构造、SHA-256 标签验证和独立参考实现比较。程序没有 CUDA、TensorFlow 或 PyTorch 运行依赖。
 
-> WiFaKey 同时提出了带训练参数的 Neural-MS。当前版本移植了 AdaMTrans、BG2/Z=10 图结构和 Min-Sum 执行路径，但没有声称复现论文的完整训练过程或论文指标。
+> WiFaKey 同时提出了带训练参数的 Neural-MS。当前版本移植了 AdaMTrans、BG2、 $Z=10$ 图结构和 Min-Sum 执行路径，但没有声称复现论文的完整训练过程或论文指标。
 
 ## 数据格式
 
@@ -116,8 +116,8 @@ CANN_ACTIVATE_SCRIPT=/path/to/cann/set_env.sh \
 | LSSC 位数 | 1536 |
 | 掩码保留位 | 840 / 1536 |
 | LDPC 基图 | 5G-NR BG2 Set 2 |
-| 提升因子 Z | 10 |
-| LDPC N / K / M | 520 / 100 / 420 |
+| 提升因子 $Z$ | 10 |
+| LDPC $N/K/M$ | 520 / 100 / 420 |
 | Tanner 图边数 | 1970 |
 | 解码器 | Normalized Min-Sum |
 | 最大迭代 | 50 |

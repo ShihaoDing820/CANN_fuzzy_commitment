@@ -68,10 +68,10 @@ d108356ee705511a38be0844c113be957ab8ec37b3e24395b493cc3fb18601e4
 
 | 用例 | 结果 |
 |---|---|
-| Ada batch=5/core=3 | 通过 |
+| Ada $B=5$、core $=3$ | 通过 |
 | Ada 尾核分配 2/2/1 | 通过 |
 | 阈值边界与 mask | 与 Host 逐 bit 一致 |
-| LDPC blocks=5/core=3 | 通过 |
+| LDPC $S=5$、core $=3$ | 通过 |
 | LDPC 尾核分配 2/2/1 | 通过 |
 | probe XOR helper | 通过 |
 | 合法全零码字 | 正确恢复 |
@@ -168,5 +168,5 @@ average_ldpc_iterations=22.584722
 3. 安装自定义 OPP。
 4. 使用生成的 ACLNN API 运行 Ada 和 LDPC 单算子。
 5. 将输出与本仓库 Host 真值逐 bit 比较。
-6. 覆盖 `B/S=1`、整除和尾核、空输入、错误 shape/dtype。
+6. 分别覆盖 $B=1$ 与 $S=1$、整除和尾核、空输入、错误 shape/dtype。
 7. 使用 msOpST 或同等工具记录功能与性能。

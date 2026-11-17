@@ -8,7 +8,7 @@
 1. `FuzzyCommitmentAdaMTransCustom`
    - ArcFace 512 维浮点特征转为 1536-bit 二值模板。
 2. `FuzzyCommitmentLdpcRecoverCustom`
-   - 使用 BG2/Z=10 Normalized Min-Sum 恢复 520-bit LDPC 码字。
+   - 使用 BG2、 $Z=10$ 的 Normalized Min-Sum 恢复 520-bit LDPC 码字。
 3. Host 协议层
    - 数据读取、阈值和 mask 管理、LDPC 图构造、随机码字、helper data、
      SHA-256 和最终接受/拒绝。
@@ -24,17 +24,22 @@
 输入：
 
 $$
-X \in \mathbb{R}^{B \times 512}, \quad t_0 < t_1 < t_2
+\mathbf{X} \in \mathbb{R}^{B \times 512}, \qquad t_0 < t_1 < t_2
 $$
 
 对每个特征值：
 
 $$
 \begin{aligned}
-\text{level} &= [x \ge t_0] + [x \ge t_1] + [x \ge t_2] \\
-q(x) &= \big([\text{level} \ge 3],\ [\text{level} \ge 2],\ [\text{level} \ge 1]\big)
+\ell(x) &= \mathbf{1}[x \ge t_0] + \mathbf{1}[x \ge t_1]
+          + \mathbf{1}[x \ge t_2], \\
+q(x) &= \bigl(\mathbf{1}[\ell(x) \ge 3],\
+                 \mathbf{1}[\ell(x) \ge 2],\
+                 \mathbf{1}[\ell(x) \ge 1]\bigr),
 \end{aligned}
 $$
+
+其中 $\mathbf{1}[\cdot]$ 是示性函数，条件成立时取 $1$，否则取 $0$。
 
 四个区间依次编码为：
 
@@ -42,32 +47,59 @@ $$
 000, 001, 011, 111
 ```
 
-最后应用 mask：
+最后应用 mask。将每行量化结果展开为 1536 维二值向量后，有：
 
-$W[b,j] = q(X[b])[j] \land \text{mask}[j]$，且 $W \in \lbrace 0,1 \rbrace^{B \times 1536}$
+$$
+\begin{aligned}
+W_{b,3d+r} &= q_r(X_{b,d}) \land m_{3d+r},
+&& 0\le b<B,\quad 0\le d<512,\quad r\in\{0,1,2\}, \\
+\mathbf{W} &\in \{0,1\}^{B \times 1536}.
+\end{aligned}
+$$
+
+其中 $m_j$ 是 mask 的第 $j$ 位。
 
 ### 2.2 Fuzzy Commitment
 
 每个 1536-bit 模板拆为三个 512-bit 块，各补 8 个零：
 
-$w_i \in \lbrace 0,1 \rbrace^{520},\quad i = 0,1,2$
+$$
+\mathbf{w}_i \in \{0,1\}^{520},
+\qquad i \in \{0,1,2\}.
+$$
 
 注册：
 
-$c_i \leftarrow \text{随机合法 LDPC 码字},\ \text{s.t. } Hc_i^{T} = 0$
+$$
+\begin{aligned}
+\mathcal{C} &= \left\{\mathbf{c}\in\mathbb{F}_2^{520}
+\;\middle|\;\mathbf{H}\mathbf{c}=\mathbf{0}\right\}, \\
+\mathbf{c}_i &\overset{\$}{\leftarrow} \mathcal{C}, \\
+\mathbf{P}_i &= \mathbf{w}_i \oplus \mathbf{c}_i, \\
+\mathrm{tag} &= \operatorname{SHA\!-\!256}
+\bigl(\mathbf{c}_0 \mathbin\Vert \mathbf{c}_1 \mathbin\Vert \mathbf{c}_2\bigr),
+\end{aligned}
+$$
 
-$P_i = w_i \oplus c_i$
-
-$\text{tag} = \mathrm{SHA256}(c_0 \Vert c_1 \Vert c_2)$
+其中 $\mathcal{C}$ 表示由校验矩阵 $\mathbf{H}$ 定义的 LDPC 码空间，
+$\overset{\$}{\leftarrow}$ 表示从中随机选择合法码字。
 
 验证：
 
 $$
 \begin{aligned}
-y_i &= w'_i \oplus P_i \\
-    &= c_i \oplus (w'_i \oplus w_i) \\
-\hat{c}_i &= \mathrm{LDPCDecode}(y_i) \\
-\text{accept} &\Leftrightarrow \text{所有码块解码有效且 } \mathrm{SHA256}(\hat{c}_0 \Vert \hat{c}_1 \Vert \hat{c}_2) = \text{tag}
+\mathbf{y}_i &= \mathbf{w}'_i \oplus \mathbf{P}_i \\
+             &= \mathbf{c}_i \oplus (\mathbf{w}'_i \oplus \mathbf{w}_i), \\
+\hat{\mathbf{c}}_i &= \operatorname{LDPCDecode}(\mathbf{y}_i), \\
+\mathrm{accept}
+&\Longleftrightarrow
+\left(\bigwedge_{i=0}^{2}\operatorname{decode\_ok}_i=1\right)
+\land
+\operatorname{SHA\!-\!256}
+\bigl(\hat{\mathbf{c}}_0 \mathbin\Vert
+      \hat{\mathbf{c}}_1 \mathbin\Vert
+      \hat{\mathbf{c}}_2\bigr)
+=\mathrm{tag}.
 \end{aligned}
 $$
 
@@ -76,17 +108,17 @@ $$
 | 参数 | 数值 |
 |---|---:|
 | 基图 | 5G-NR BG2 Set 2 |
-| 基图尺寸 | 42×52 |
-| 提升因子 Z | 10 |
-| 变量节点 N/VN | 520 |
-| 校验节点 M/CN | 420 |
-| 自由度 K | 100 |
-| Tanner 图边数 E | 1970 |
+| 基图尺寸 | $42\times52$ |
+| 提升因子 $Z$ | $10$ |
+| 变量节点 $N$ / VN | $520$ |
+| 校验节点 $M$ / CN | $420$ |
+| 自由度 $K$ | $100$ |
+| Tanner 图边数 $E$ | $1970$ |
 | 最大迭代 | 默认 50 |
 | 初始 LLR | 默认 ±4.0 |
 | Min-Sum 归一化 | 默认 0.75 |
 
-本实现复用 WiFaKey 的 BG2/Z=10 结构，使用固定参数 Normalized Min-Sum。
+本实现复用 WiFaKey 的 BG2、 $Z=10$ 结构，使用固定参数 Normalized Min-Sum。
 
 ## 3. 算子原型 JSON
 
@@ -146,19 +178,23 @@ bits_per_feature=3
 
 Host 检查：
 
-```text
-rank(embeddings)=2
-embeddings.shape[1]=512
-thresholds.shape=[3]
-mask.shape=[1536]
-B可以在图构建阶段未知，但运行时必须大于0
-```
+$$
+\begin{aligned}
+\operatorname{rank}(\texttt{embeddings}) &= 2, \\
+\operatorname{shape}(\texttt{embeddings}) &= [B,512], \\
+\operatorname{shape}(\texttt{thresholds}) &= [3], \\
+\operatorname{shape}(\texttt{mask}) &= [1536], \\
+B &> 0 \quad \text{（运行时）}.
+\end{aligned}
+$$
+
+$B$ 可以在图构建阶段未知，但运行时必须大于 $0$。
 
 输出：
 
-```text
-[B,1536]
-```
+$$
+\operatorname{shape}(\texttt{binary\_templates})=[B,1536].
+$$
 
 输出 dtype 固定为 `uint16`，不会错误继承 float32 输入 dtype。
 
@@ -180,14 +216,19 @@ struct FuzzyCommitmentAdaMTransCustomTilingData {
 
 Host 从平台信息读取可用核心数：
 
-```text
-usedCoreNum = min(B, availableCoreNum)
-baseRowsPerCore = B / usedCoreNum
-extraRowCoreCount = B % usedCoreNum
-```
+$$
+\begin{aligned}
+C_{\mathrm{used}} &= \min(B,C_{\mathrm{available}}), \\
+R_{\mathrm{base}} &= \left\lfloor\frac{B}{C_{\mathrm{used}}}\right\rfloor, \\
+R_{\mathrm{extra}} &= B \bmod C_{\mathrm{used}}.
+\end{aligned}
+$$
 
-前 `extraRowCoreCount` 个核各多处理一行。因此 `B=5, core=3` 时分配为
-`2/2/1`，不存在漏算尾行。
+它们分别对应代码中的 `usedCoreNum`、`baseRowsPerCore` 和
+`extraRowCoreCount`。
+
+前 `extraRowCoreCount` 个核各多处理一行。因此 $B=5$、 $C_{\mathrm{used}}=3$
+时分配为 $(2,2,1)$，不存在漏算尾行。
 
 ### 4.4 Kernel
 
@@ -241,11 +282,14 @@ normalization=0.75
 
 Host 限制：
 
-```text
-1 ≤ max_iterations ≤ 1000
-channel_llr > 0
-0 < normalization ≤ 1
-```
+$$
+1 \le I_{\max} \le 1000,
+\qquad L_{\mathrm{ch}}>0,
+\qquad 0<\alpha\le1,
+$$
+
+其中 $I_{\max}$、 $L_{\mathrm{ch}}$ 和 $\alpha$ 分别对应
+`max_iterations`、`channel_llr` 和 `normalization`。
 
 ### 5.2 图结构
 
@@ -288,13 +332,13 @@ LDPC 每轮存在全图 CN/VN 消息依赖。因此首版不把同一个码块�
 
 每个核心分配：
 
-```text
-probe/helper          2 × 520 × uint16
-channel_llr            520 × float32
-q_message             1970 × float32
-r_message             1970 × float32
-hard_decision          520 × uint16
-```
+| LocalTensor | 元素数量 | dtype |
+|---|---:|---|
+| `probe/helper` | $2\times520$ | uint16 |
+| `channel_llr` | $520$ | float32 |
+| `q_message` | $1970$ | float32 |
+| `r_message` | $1970$ | float32 |
+| `hard_decision` | $520$ | uint16 |
 
 `probe/helper` 的单块大小是 1040 bytes，不是完整的 32-byte DMA 倍数。当前
 正确性实现逐元素搬入，避免简单 DataCopy 越界读取尾部 8 bytes。真机优化可以
@@ -302,21 +346,28 @@ hard_decision          520 × uint16
 
 ### 5.5 解码流程
 
-```text
-received = probe XOR helper
-LLR = received==0 ? +channel_llr : -channel_llr
-初始化q/r
-循环最多max_iterations：
-  CN更新：符号积、最小值、第二小值、normalization
-  VN更新：channel LLR + 关联r消息
-  硬判决
-  syndrome检查
-  syndrome=0时提前结束
-输出decoded/decode_ok/syndrome_weight/iterations
-```
+对第 $v$ 个变量节点，首先计算：
+
+$$
+y_v=\mathrm{probe}_v\oplus\mathrm{helper}_v,
+\qquad
+L_v=\begin{cases}
++L_{\mathrm{ch}}, & y_v=0,\\
+-L_{\mathrm{ch}}, & y_v=1.
+\end{cases}
+$$
+
+随后初始化 $q$、 $r$ 消息，并循环至多 $I_{\max}$ 次：
+
+1. CN 更新：计算符号积、最小值、第二小值并乘归一化系数 $\alpha$。
+2. VN 更新：累加 channel LLR 与关联的 $r$ 消息。
+3. 执行硬判决并检查 syndrome。
+4. syndrome weight 为 $0$ 时提前结束。
+
+最后输出 `decoded`、`decode_ok`、`syndrome_weight` 和 `iterations`。
 
 额外元数据用于测试、监控和失败分析。生产协议层应要求所有三个码块
-`decode_ok=1` 后再执行最终 tag 接受逻辑。
+$\operatorname{decode\_ok}=1$ 后再执行最终 tag 接受逻辑。
 
 ## 6. Host 与 Kernel 的职责
 

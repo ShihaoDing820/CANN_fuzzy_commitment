@@ -4,17 +4,30 @@
 
 Fuzzy Commitment 是注册与验证协议，不是一个单独的逐元素函数。完整流程是：
 
-```text
-注册：
-ArcFace → 二值模板w → 随机LDPC码字c
-                     → P=w XOR c
-                     → tag=SHA256(c)
+注册阶段：
 
-验证：
-ArcFace' → 二值模板w' → y=w' XOR P
-                       → LDPC恢复c_hat
-                       → SHA256(c_hat)与tag比较
-```
+$$
+\begin{aligned}
+\mathbf{w} &= \operatorname{Binarize}(\operatorname{ArcFace}(\text{注册图像})), \\
+\mathbf{c} &\overset{\$}{\leftarrow} \mathcal{C}, \\
+\mathbf{P} &= \mathbf{w}\oplus\mathbf{c}, \\
+\mathrm{tag} &= \operatorname{SHA\!-\!256}(\mathbf{c}).
+\end{aligned}
+$$
+
+验证阶段：
+
+$$
+\begin{aligned}
+\mathbf{w}' &= \operatorname{Binarize}(\operatorname{ArcFace}(\text{验证图像})), \\
+\mathbf{y} &= \mathbf{w}'\oplus\mathbf{P}, \\
+\hat{\mathbf{c}} &= \operatorname{LDPCDecode}(\mathbf{y}), \\
+\mathrm{accept} &\Longleftrightarrow
+\operatorname{SHA\!-\!256}(\hat{\mathbf{c}})=\mathrm{tag}.
+\end{aligned}
+$$
+
+其中 $\mathcal{C}$ 是合法 LDPC 码字集合， $\overset{\$}{\leftarrow}$ 表示随机选择。
 
 本工程只把适合张量计算的二值化和 LDPC 解码放在 AI Core。数据读取、随机数、
 helper data、哈希和协议状态保留在 Host。
@@ -24,21 +37,26 @@ helper data、哈希和协议状态保留在 Host。
 ArcFace 输出 512 个 float，LDPC 处理固定长度 bit 向量。必须定义一个稳定、
 可复现的转换：
 
-```text
-x<t0          → 000
-t0≤x<t1       → 001
-t1≤x<t2       → 011
-x≥t2          → 111
-```
+$$
+q(x)=
+\begin{cases}
+(0,0,0), & x<t_0, \\
+(0,0,1), & t_0\le x<t_1, \\
+(0,1,1), & t_1\le x<t_2, \\
+(1,1,1), & x\ge t_2.
+\end{cases}
+$$
 
-这是温度计式编码。相邻区间只变化一位，例如 `001→011`，比普通二进制编码
+这是温度计式编码。相邻区间只变化一位，例如 $(0,0,1)\rightarrow(0,1,1)$，比普通二进制编码
 更适合含噪声的生物特征。
 
-512 维各产生 3 bit，所以模板长度为 1536 bit。mask 再去掉部分位置：
+512 维各产生 3 bit，所以模板长度为 $512\times3=1536$ bit。mask 再去掉部分位置：
 
-```text
-output = LSSC(embedding) AND mask
-```
+$$
+\mathbf{w}=\operatorname{LSSC}(\mathbf{x})\land\mathbf{m},
+\qquad
+\mathbf{w}\in\{0,1\}^{1536}.
+$$
 
 ### 常见做法
 
@@ -59,46 +77,55 @@ train/test fold 隔离阈值和 mask。
 
 ## 3. Fuzzy Commitment 为什么能容忍误差
 
-注册模板为 `w`，合法纠错码字为 `c`：
+注册模板为 $\mathbf{w}$，合法纠错码字为 $\mathbf{c}$：
 
-```text
-P=w XOR c
-```
+$$
+\mathbf{P}=\mathbf{w}\oplus\mathbf{c}.
+$$
 
-验证模板为 `w'`：
+验证模板为 $\mathbf{w}'$。令 $\mathbf{e}=\mathbf{w}'\oplus\mathbf{w}$ 表示两次模板之间的误差，则：
 
-```text
-w' XOR P = w' XOR w XOR c = error XOR c
-```
+$$
+\begin{aligned}
+\mathbf{y}
+&=\mathbf{w}'\oplus\mathbf{P} \\
+&=\mathbf{w}'\oplus\mathbf{w}\oplus\mathbf{c} \\
+&=\mathbf{e}\oplus\mathbf{c}.
+\end{aligned}
+$$
 
-两次采集越接近，`error` 的 Hamming weight 越低。LDPC 的任务就是从
-`c XOR error` 恢复 `c`。
+两次采集越接近，误差的 Hamming weight $\operatorname{wt}(\mathbf{e})$ 越低。
+LDPC 的任务就是从 $\mathbf{c}\oplus\mathbf{e}$ 恢复 $\mathbf{c}$。
 
-helper `P` 通常可以公开，但“可以公开”不代表“没有信息泄漏”。纠错码参数、
+helper $\mathbf{P}$ 通常可以公开，但“可以公开”不代表“没有信息泄漏”。纠错码参数、
 模板熵、不同应用之间的可链接性和 helper 复用都需要正式分析。
 
 ## 4. 为什么拆成三个 520-bit 块
 
 二值模板长度为 1536：
 
-```text
-1536 = 3 × 512
-```
+$$
+1536=3\times512.
+$$
 
-当前 BG2/Z=10 LDPC 的码长为 520，所以每个 512-bit 块补 8 个零。补零只用于
+当前 BG2、 $Z=10$ LDPC 的码长为 520，所以每个 512-bit 块补 8 个零。补零只用于
 尺寸适配，不增加熵。注册和验证必须使用完全相同的补零规则，否则会人为产生
 差异。
 
 ## 5. LDPC 中 VN、CN、边和 K 是什么
 
-```text
-N/VN=520：码字有520个变量bit
-M/CN=420：有420条奇偶校验方程
-E=1970：变量与校验方程之间有1970条连接
-K=100：H秩为420时，零空间维数为520-420=100
-```
+$$
+\begin{aligned}
+N &= 520 &&\text{（变量节点数，即码长）}, \\
+M &= 420 &&\text{（校验节点数）}, \\
+E &= 1970 &&\text{（Tanner 图边数）}, \\
+\operatorname{rank}(\mathbf{H}) &= 420, \\
+K &= N-\operatorname{rank}(\mathbf{H})=520-420=100.
+\end{aligned}
+$$
 
-BG2 基图是 42×52，提升因子 Z=10 后变成 420×520 的稀疏图。
+BG2 基图是 $42\times52$，提升因子 $Z=10$ 后得到
+$\mathbf{H}\in\{0,1\}^{420\times520}$ 的稀疏校验矩阵。
 
 代码保存两个方向的 CSR 风格索引：
 
@@ -114,15 +141,18 @@ variableOffsets/variableEdges：从VN查消息边
 
 收到 bit 后先建立置信度：
 
-```text
-0 → +4.0
-1 → -4.0
-```
+$$
+L_v=
+\begin{cases}
++4.0, & y_v=0, \\
+-4.0, & y_v=1.
+\end{cases}
+$$
 
 每轮执行：
 
 1. CN 更新：计算符号积、最小绝对值和第二小绝对值。
-2. 乘归一化系数 0.75，形成 CN→VN 消息。
+2. 乘归一化系数 $\alpha=0.75$，形成 CN $\rightarrow$ VN 消息。
 3. VN 更新：累加 channel LLR 与所有关联 CN 消息。
 4. 根据总 LLR 正负进行硬判决。
 5. 检查 syndrome，等于 0 时提前结束。
@@ -234,7 +264,7 @@ CopyOut：UB→GM
 ```
 
 AdaMTrans 已按这一结构组织。LDPC 也把消息和硬判决放入 UB，但稀疏图索引仍
-从 GM 访问，且 520×uint16 不满足整 32-byte 长度，因此当前逐元素安全搬入。
+从 GM 访问，且 $520\times\texttt{uint16}$ 不满足整 32-byte 长度，因此当前逐元素安全搬入。
 这保证了边界正确，但不代表已经达到真机最优性能。
 
 ## 13. 当前实现与常见生产实现对比
@@ -244,7 +274,7 @@ AdaMTrans 已按这一结构组织。LDPC 也把消息和硬判决放入 UB，�
 | 阈值 | 训练折学习 | 全量输入统计 |
 | mask | 稳定性学习/可撤销 | 固定可复现 mask |
 | RNG | CSPRNG | 固定种子 `mt19937` 测试 |
-| LDPC | 数据调参/训练 | BG2/Z=10 固定 NMS |
+| LDPC | 数据调参/训练 | BG2、 $Z=10$ 固定 NMS |
 | bit 存储 | uint8/bit pack | uint16 |
 | API | 安装后 ACLNN/入图 | 已生成 ACLNN，原型也可直启 kernel |
 | Tiling | 按目标 SoC 动态 | 已实现按核心动态分配 |

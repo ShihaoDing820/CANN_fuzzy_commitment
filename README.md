@@ -126,7 +126,7 @@ syndrome_weight    int32  [S]
 iterations         int32  [S]
 ```
 
-完成 BG2、Z=10、Normalized Min-Sum 解码。一个完整码块保留在一个核心上，
+完成 BG2、 $Z=10$、Normalized Min-Sum 解码。一个完整码块保留在一个核心上，
 独立码块之间并行，避免跨核破坏 CN/VN 迭代依赖。
 
 ## 文档入口
@@ -144,6 +144,6 @@ iterations         int32  [S]
 - 原型使用固定种子的 `std::mt19937`，生产注册必须换成 CSPRNG。
 - 全量结果 FMR 为 `5.4333%`，不能直接用于生产认证。
 - helper data、模板熵、可链接性和侧信道仍需正式安全分析。
-- 当前工作复用了 WiFaKey 的 BG2/Z=10 结构和思路，不声称复现完整 Neural-MS。
+- 当前工作复用了 WiFaKey 的 BG2、 $Z=10$ 结构和思路，不声称复现完整 Neural-MS。
 
 第三方来源和版本信息见 [THIRD_PARTY_NOTICES.md](prototype/THIRD_PARTY_NOTICES.md)。

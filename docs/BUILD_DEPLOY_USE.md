@@ -254,24 +254,23 @@ aclnnFuzzyCommitmentLdpcRecoverCustom(
 
 注册：
 
-```text
-AdaMTransCustom(enrollmentEmbedding)
-→ 拆3×512并补零为3×520
-→ CSPRNG生成合法码字
-→ helper=w XOR c
-→ tag=SHA256(c0||c1||c2)
-→ 安全保存helper/tag/参数版本
-```
+1. 调用 `AdaMTransCustom(enrollmentEmbedding)`。
+2. 将 $3\times512$ bit 拆分并补零为 $3\times520$ bit。
+3. 使用 CSPRNG 生成三个合法 LDPC 码字 $\mathbf{c}_0,\mathbf{c}_1,\mathbf{c}_2$。
+4. 对每个码块计算
+   $\mathbf{P}_i=\mathbf{w}_i\oplus\mathbf{c}_i$，其中 $i\in\{0,1,2\}$。
+5. 计算
+   $\mathrm{tag}=\operatorname{SHA\!-\!256}(\mathbf{c}_0\mathbin\Vert\mathbf{c}_1\mathbin\Vert\mathbf{c}_2)$。
+6. 安全保存 helper、tag 和参数版本。
 
 验证：
 
-```text
-AdaMTransCustom(probeEmbedding)
-→ LdpcRecoverCustom(probe, helper, graph)
-→ 要求3个decode_ok均为1
-→ SHA256(decoded0||decoded1||decoded2)
-→ 常量时间比较tag
-```
+1. 调用 `AdaMTransCustom(probeEmbedding)`。
+2. 调用 `LdpcRecoverCustom(probe, helper, graph)`。
+3. 要求三个码块均满足 $\operatorname{decode\_ok}_i=1$。
+4. 计算
+   $\widehat{\mathrm{tag}}=\operatorname{SHA\!-\!256}(\hat{\mathbf{c}}_0\mathbin\Vert\hat{\mathbf{c}}_1\mathbin\Vert\hat{\mathbf{c}}_2)$。
+5. 常量时间比较 $\widehat{\mathrm{tag}}$ 与注册阶段保存的 $\mathrm{tag}$。
 
 ## 11. 入图说明
 
