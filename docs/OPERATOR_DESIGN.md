@@ -44,7 +44,7 @@ $$
 
 最后应用 mask：
 
-$W[b,j] = q(X[b])[j] \land \text{mask}[j]$，且 $W \in \{0,1\}^{B \times 1536}$
+$W[b,j] = q(X[b])[j] \land \text{mask}[j]$，且 $W \in {0,1}^{B \times 1536}$
 
 ### 2.2 Fuzzy Commitment
 
