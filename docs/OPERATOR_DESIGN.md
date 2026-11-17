@@ -24,6 +24,9 @@
 输入：
 
 ```text
+$$
+X \in \mathbb{R}^{B \times 512}, \quad t_0 < t_1 < t_2
+$$
 X ∈ R^(B×512)
 t0 < t1 < t2
 ```
@@ -31,7 +34,7 @@ t0 < t1 < t2
 对每个特征值：
 
 ```text
-level = [x≥t_0] + [x≥t_{1}] + [x≥t2]
+level = [x≥t0] + [x≥t1] + [x≥t2]
 q(x) = ([level≥3], [level≥2], [level≥1])
 ```
 
