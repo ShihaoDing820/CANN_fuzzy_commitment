@@ -75,7 +75,7 @@ $$
 $$
 \begin{aligned}
 \mathcal{C} &= \left\lbrace\mathbf{c}\in\mathbb{F}_2^{520}
-\;\middle|\;\mathbf{H}\mathbf{c}=\mathbf{0}\right\rbrace, \\
+\quad\middle|\quad\mathbf{H}\mathbf{c}=\mathbf{0}\right\rbrace, \\
 \mathbf{c}_i &\overset{\mathrm{rand}}{\leftarrow} \mathcal{C}, \\
 \mathbf{P}_i &= \mathbf{w}_i \oplus \mathbf{c}_i, \\
 \mathrm{tag} &= \mathrm{SHA\text{-}256}
