@@ -19,9 +19,7 @@ Host: Ubuntu x86_64
 npu-smi info
 ```
 
-记录 `Chip Name` 并映射到当前 CANN 支持的 `soc_version`。本虚拟机没有
-`npu-smi`，因此仓库中的 Ascend310P 产物是离线编译验证结果，不表示虚拟机
-连接了 Ascend310P。
+记录 `Chip Name` 并映射到当前 CANN 支持的 `soc_version`。
 
 ## 2. 准备 CANN 环境
 
