@@ -161,12 +161,3 @@ average_ldpc_iterations=22.584722
 - 生产安全性、模板熵和 helper-data 泄漏。
 - 严格训练/测试折隔离后的 FMR/FNMR。
 
-## 7. 建议补充的目标设备测试
-
-1. 在目标设备执行 `npu-smi info`。
-2. 按实际 SoC 重新编译 `.run`。
-3. 安装自定义 OPP。
-4. 使用生成的 ACLNN API 运行 Ada 和 LDPC 单算子。
-5. 将输出与本仓库 Host 真值逐 bit 比较。
-6. 分别覆盖 $B=1$ 与 $S=1$、整除和尾核、空输入、错误 shape/dtype。
-7. 使用 msOpST 或同等工具记录功能与性能。
