@@ -23,10 +23,11 @@
 
 输入：
 
-```text
 $$
 X \in \mathbb{R}^{B \times 512}, \quad t_0 < t_1 < t_2
 $$
+
+```text
 X ∈ R^(B×512)
 t0 < t1 < t2
 ```
