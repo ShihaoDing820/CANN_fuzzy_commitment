@@ -27,17 +27,14 @@ $$
 X \in \mathbb{R}^{B \times 512}, \quad t_0 < t_1 < t_2
 $$
 
-```text
-X ∈ R^(B×512)
-t0 < t1 < t2
-```
-
 对每个特征值：
 
-```text
-level = [x≥t0] + [x≥t1] + [x≥t2]
-q(x) = ([level≥3], [level≥2], [level≥1])
-```
+$$
+\begin{aligned}
+\text{level} &= [x \ge t_0] + [x \ge t_1] + [x \ge t_2] \\
+q(x) &= \big([\text{level} \ge 3],\ [\text{level} \ge 2],\ [\text{level} \ge 1]\big)
+\end{aligned}
+$$
 
 四个区间依次编码为：
 
