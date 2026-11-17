@@ -50,7 +50,7 @@ $W[b,j] = q(X[b])[j] \land \text{mask}[j]$，且 $W \in \lbrace 0,1 \rbrace^{B \
 
 每个 1536-bit 模板拆为三个 512-bit 块，各补 8 个零：
 
-$w_i \in \{0,1\}^{520},\quad i = 0,1,2$
+$w_i \in \lbrace 0,1 \rbrace^{520},\quad i = 0,1,2$
 
 注册：
 
