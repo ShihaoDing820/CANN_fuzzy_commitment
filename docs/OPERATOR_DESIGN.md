@@ -44,10 +44,12 @@ $$
 
 最后应用 mask：
 
-```text
-W[b,j] = q(X[b])[j] AND mask[j]
-W ∈ {0,1}^(B×1536)
-```
+$$
+\begin{aligned}
+W[b,j] &= q(X[b])[j] \land \text{mask}[j] \\
+W &\in \{0,1\}^{B \times 1536}
+\end{aligned}
+$$
 
 ### 2.2 Fuzzy Commitment
 
