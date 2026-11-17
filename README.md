@@ -71,7 +71,7 @@ LFW 特征默认从以下位置读取：
 /home/dsh/cann-dev/biometric-data/lfw_issame.csv
 ```
 
-数据集体积较大，不包含在 Git 仓库中。可将自定义路径传给原型脚本：
+数据集体积较大，可从[WiFaKey代码仓库](https://github.com/xingbod/WiFaKey)自行下载。可将自定义路径传给原型脚本：
 
 ```bash
 ./prototype/run-tests.sh /path/to/embeddings.csv /path/to/lfw_issame.csv
@@ -92,7 +92,7 @@ cd custom_opp
 custom_opp/build_out/custom_opp_ubuntu_x86_64.run
 ```
 
-本次 Ascend310P 构建的精选产物也保存在：
+本次 Ascend310P 构建的产物也保存在：
 
 ```text
 artifacts/ascend310p/
@@ -134,8 +134,7 @@ iterations         int32  [S]
 - [算子设计与实现](docs/OPERATOR_DESIGN.md)
 - [算法解释、常见做法与 CANN 差异](docs/ALGORITHM_EXPLANATION.md)
 - [构建、部署和调用](docs/BUILD_DEPLOY_USE.md)
-- [功能验证报告](docs/VALIDATION_REPORT.md)
-- [性能报告与后续真机计划](docs/PERFORMANCE_REPORT.md)
+- [功能验证报告](docs/VALIDATION_REPORT.md)、
 
 ## 安全与评估边界
 
@@ -144,6 +143,4 @@ iterations         int32  [S]
 - 原型使用固定种子的 `std::mt19937`，生产注册必须换成 CSPRNG。
 - 全量结果 FMR 为 `5.4333%`，不能直接用于生产认证。
 - helper data、模板熵、可链接性和侧信道仍需正式安全分析。
-- 当前工作复用了 WiFaKey 的 BG2、 $Z=10$ 结构和思路，不声称复现完整 Neural-MS。
-
-第三方来源和版本信息见 [THIRD_PARTY_NOTICES.md](prototype/THIRD_PARTY_NOTICES.md)。
+- 当前工作复用了 WiFaKey 的 BG2、 $Z=10$ 结构和思路，详情可参见[WiFaKey代码仓库](https://github.com/xingbod/WiFaKey)。
