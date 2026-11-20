@@ -10,7 +10,6 @@ Python：3.11.18
 CMake：3.28.3
 CPU Debug架构：dav-2201
 OPP离线目标：ascend310p
-真实NPU：无，npu-smi不可用
 ```
 
 ## 2. 标准 OPP 编译与打包
